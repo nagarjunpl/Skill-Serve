@@ -74,5 +74,38 @@
             </div>
         </main>
     </div>
+     <script>
+                function showTab(tabName) {
+                    const tabs = document.querySelectorAll('.tab-btn');
+                    const forms = document.querySelectorAll('.auth-form');
+                    
+                    tabs.forEach(tab => tab.classList.remove('active'));
+                    forms.forEach(form => form.classList.remove('active'));
+                    
+                    document.querySelector(`[onclick="showTab('${tabName}')"]`).classList.add('active');
+                    document.getElementById(`${tabName}-form`).classList.add('active');
+                }
+
+                // Initialize the page
+                document.addEventListener('DOMContentLoaded', () => {
+                    // Check if user is already logged in
+                    const currentUser = getCurrentUser();
+                    if (currentUser) {
+                        if (currentUser.role === 'customer') {
+                            window.location.href = 'customer-dashboard.html';
+                        } else if (currentUser.role === 'worker') {
+                            window.location.href = 'worker-dashboard.html';
+                        }
+                    }
+
+                    // Update language toggle button text
+                    const currentLang = getCurrentLanguage();
+                    const toggleBtn = document.getElementById('loginLanguageToggle');
+                    if (toggleBtn) {
+                        toggleBtn.innerHTML = currentLang === 'english' ? 'ಕನ್ನಡ' : 'English';
+                        toggleBtn.title = currentLang === 'english' ? 'Switch to Kannada' : 'Switch to English';
+                    }
+                });
+            </script>
 </body>
 </html>
