@@ -99,3 +99,19 @@ body {
     background-color: var(--primary-color);
     color: white;
 }
+
+/* Language Toggle Button */
+.language-toggle {
+    background-color: var(--language-color);
+    color: white;
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+    white-space: nowrap;
+    font-weight: 500;
+}
+
+.language-toggle:hover {
+    background-color: var(--language-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+}
