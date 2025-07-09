@@ -505,3 +505,141 @@ body {
     border-radius: var(--border-radius);
     margin-top: 0.5rem;
 }
+
+/* Phone Link Styles */
+.phone-link {
+    color: var(--call-color);
+    text-decoration: none;
+    font-weight: 500;
+    transition: var(--transition);
+}
+
+.phone-link:hover {
+    color: var(--call-hover);
+    text-decoration: underline;
+}
+
+/* Worker Actions */
+.worker-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+}
+
+.worker-actions .btn {
+    flex: 1;
+    min-width: 120px;
+}
+
+/* Booking Contact Actions */
+.booking-contact-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+}
+
+.booking-contact-actions .btn {
+    flex: 1;
+    min-width: 120px;
+}
+
+/* Availability Section */
+.availability-section {
+    margin-bottom: 2rem;
+}
+
+.availability-card {
+    background: var(--card-bg);
+    border-radius: var(--border-radius);
+    padding: 2rem;
+    box-shadow: var(--shadow);
+    text-align: center;
+}
+
+.availability-status {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 1rem;
+}
+
+.availability-status .status-indicator {
+    font-size: 1.1rem;
+}
+
+/* Bookings List */
+.bookings-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.booking-card {
+    background: var(--card-bg);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+}
+
+.booking-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.booking-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.booking-header h4 {
+    color: var(--primary-color);
+}
+
+.booking-status {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.booking-status.pending {
+    background-color: rgba(245, 158, 11, 0.1);
+    color: var(--accent-color);
+}
+
+.booking-status.accepted {
+    background-color: rgba(16, 185, 129, 0.1);
+    color: var(--secondary-color);
+}
+
+.booking-status.completed {
+    background-color: rgba(34, 197, 94, 0.1);
+    color: #22c55e;
+}
+
+.booking-status.rejected {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: var(--danger-color);
+}
+
+.booking-status.cancelled {
+    background-color: rgba(107, 114, 128, 0.1);
+    color: #6b7280;
+}
+
+.booking-details p {
+    margin-bottom: 0.5rem;
+    color: var(--text-muted);
+}
+
+.booking-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
