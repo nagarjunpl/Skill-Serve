@@ -922,3 +922,122 @@ body {
 .star:hover {
     transform: scale(1.1);
 }
+
+/* Register Worker Styles */
+.register-container {
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.register-card {
+    background: var(--card-bg);
+    border-radius: var(--border-radius);
+    padding: 2rem;
+    box-shadow: var(--shadow-lg);
+    animation: slideInUp 0.6s ease;
+}
+
+.register-card h2 {
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+}
+
+.register-card p {
+    color: var(--text-muted);
+    margin-bottom: 2rem;
+}
+
+.register-footer {
+    text-align: center;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.register-footer a {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.register-footer a:hover {
+    text-decoration: underline;
+}
+
+/* Success Message */
+.success-message {
+    text-align: center;
+    padding: 2rem;
+}
+
+.success-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.success-message h3 {
+    color: var(--secondary-color);
+    margin-bottom: 1rem;
+}
+
+.success-message p {
+    color: var(--text-muted);
+    margin-bottom: 2rem;
+    line-height: 1.6;
+}
+
+/* Profile Section */
+.profile-section {
+    animation: fadeIn 0.8s ease;
+}
+
+.profile-card {
+    background: var(--card-bg);
+    border-radius: var(--border-radius);
+    padding: 2rem;
+    box-shadow: var(--shadow);
+}
+
+.profile-details h4 {
+    color: var(--primary-color);
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.profile-details p {
+    margin-bottom: 0.5rem;
+    color: var(--text-muted);
+}
+
+.profile-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.profile-actions .btn {
+    flex: 1;
+    min-width: 150px;
+}
+
+/* Utility Classes */
+.no-results {
+    text-align: center;
+    color: var(--text-muted);
+    font-style: italic;
+    padding: 2rem;
+    background: var(--card-bg);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+}
+
+.loading-message {
+    text-align: center;
+    color: var(--refresh-color);
+    font-weight: 500;
+    padding: 2rem;
+    background: var(--card-bg);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    animation: pulse 1.5s infinite;
+}
