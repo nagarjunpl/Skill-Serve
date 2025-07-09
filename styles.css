@@ -422,3 +422,86 @@ body {
 .job-tabs .tab-btn:hover:not(.active) {
     background-color: var(--bg-color);
 }
+
+/* Workers Grid */
+.workers-section h3,
+.bookings-section h3 {
+    margin-bottom: 1.5rem;
+    color: var(--primary-color);
+}
+
+.workers-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 1.5rem;
+}
+
+.worker-card {
+    background: var(--card-bg);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+    border-left: 4px solid transparent;
+}
+
+.worker-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+}
+
+.worker-card.available {
+    border-left-color: var(--secondary-color);
+}
+
+.worker-card.busy {
+    border-left-color: var(--danger-color);
+    opacity: 0.8;
+}
+
+.worker-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.worker-header h4 {
+    color: var(--primary-color);
+    font-size: 1.2rem;
+}
+
+.status-indicator {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.status-indicator.available {
+    background-color: rgba(16, 185, 129, 0.1);
+    color: var(--secondary-color);
+}
+
+.status-indicator.busy {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: var(--danger-color);
+}
+
+.pulse {
+    animation: pulse 2s infinite;
+}
+
+.worker-info p {
+    margin-bottom: 0.5rem;
+    color: var(--text-muted);
+}
+
+.worker-description {
+    font-style: italic;
+    color: var(--text-color);
+    background-color: var(--bg-color);
+    padding: 0.75rem;
+    border-radius: var(--border-radius);
+    margin-top: 0.5rem;
+}
