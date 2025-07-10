@@ -151,3 +151,41 @@ function protectRoute(requiredRole) {
     
     return true;
 }
+
+// Update user profile
+function updateUserProfile(updates) {
+    const currentUser = getCurrentUser();
+    if (!currentUser) return false;
+    
+    const users = getUsers();
+    const userIndex = users.findIndex(u => u.id === currentUser.id);
+    
+    if (userIndex !== -1) {
+        users[userIndex] = { ...users[userIndex], ...updates };
+        saveUsers(users);
+        setCurrentUser(users[userIndex]);
+        return true;
+    }
+    
+    return false;
+}
+
+// Get user stats
+function getUserStats() {
+    const currentUser = getCurrentUser();
+    if (!currentUser) return null;
+    
+    const stats = {
+        totalUsers: getUsers().length,
+        totalWorkers: getWorkers().length,
+        totalBookings: getBookings().length
+    };
+    
+    if (currentUser.role === 'customer') {
+        stats.myBookings = getBookings().filter(b => b.customerId === currentUser.id).length;
+    } else if (currentUser.role === 'worker') {
+        stats.myBookings = getBookings().filter(b => b.workerId === currentUser.id).length;
+    }
+    
+    return stats;
+}
