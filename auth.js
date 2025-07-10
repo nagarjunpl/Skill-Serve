@@ -1,0 +1,83 @@
+// Authentication functions for SkillServe
+
+// Login function
+function login(email, password) {
+    const users = getUsers();
+    const user = users.find(u => u.email === email && u.password === password);
+    
+    if (user) {
+        setCurrentUser(user);
+        return { success: true, user: user };
+    }
+    
+    return { success: false, message: 'Invalid email or password' };
+}
+
+// Signup function
+function signup(name, email, password, role) {
+    const users = getUsers();
+    
+    // Check if user already exists
+    if (users.find(u => u.email === email)) {
+        return { success: false, message: 'User with this email already exists' };
+    }
+    
+    // Create new user
+    const newUser = {
+        id: generateId(),
+        name: name,
+        email: email,
+        password: password,
+        role: role,
+        createdAt: new Date().toISOString()
+    };
+    
+    addUser(newUser);
+    setCurrentUser(newUser);
+    
+    return { success: true, user: newUser };
+}
+
+// Logout function
+function logout() {
+    clearCurrentUser();
+    window.location.href = 'index.html';
+}
+
+// Check if user is authenticated
+function isAuthenticated() {
+    return getCurrentUser() !== null;
+}
+
+// Check if user has specific role
+function hasRole(role) {
+    const currentUser = getCurrentUser();
+    return currentUser && currentUser.role === role;
+}
+
+// Setup event listeners for auth forms
+document.addEventListener('DOMContentLoaded', () => {
+    // Login form
+    const loginForm = document.getElementById('loginForm');
+    if (loginForm) {
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            const result = login(email, password);
+            
+            if (result.success) {
+                // Redirect based on role
+                if (result.user.role === 'customer') {
+                    window.location.href = 'customer-dashboard.html';
+                } else if (result.user.role === 'worker') {
+                    window.location.href = 'worker-dashboard.html';
+                }
+            } else {
+                alert(result.message);
+            }
+        });
+    }
+    
