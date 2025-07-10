@@ -81,3 +81,73 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
+    // Signup form
+    const signupForm = document.getElementById('signupForm');
+    if (signupForm) {
+        signupForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const name = document.getElementById('signupName').value;
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+            const role = document.getElementById('userRole').value;
+            
+            // Basic validation
+            if (!name || !email || !password || !role) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            if (password.length < 6) {
+                alert('Password must be at least 6 characters long');
+                return;
+            }
+            
+            const result = signup(name, email, password, role);
+            
+            if (result.success) {
+                // Redirect based on role
+                if (result.user.role === 'customer') {
+                    window.location.href = 'customer-dashboard.html';
+                } else if (result.user.role === 'worker') {
+                    window.location.href = 'register-worker.html';
+                }
+            } else {
+                alert(result.message);
+            }
+        });
+    }
+});
+
+// Email validation
+function isValidEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+}
+
+// Password validation
+function isValidPassword(password) {
+    return password.length >= 6;
+}
+
+// Protected route function
+function protectRoute(requiredRole) {
+    const currentUser = getCurrentUser();
+    
+    if (!currentUser) {
+        window.location.href = 'index.html';
+        return false;
+    }
+    
+    if (requiredRole && currentUser.role !== requiredRole) {
+        // Redirect to appropriate dashboard
+        if (currentUser.role === 'customer') {
+            window.location.href = 'customer-dashboard.html';
+        } else if (currentUser.role === 'worker') {
+            window.location.href = 'worker-dashboard.html';
+        }
+        return false;
+    }
+    
+    return true;
+}
