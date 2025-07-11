@@ -634,3 +634,227 @@
                 document.getElementById('cancelBookingModal').style.display = 'block';
             }
         }
+
+        function closeCancelModal() {
+            document.getElementById('cancelBookingModal').style.display = 'none';
+            selectedBookingForCancel = null;
+        }
+
+        function confirmCancelBooking() {
+            if (selectedBookingForCancel) {
+                // Update booking status to cancelled
+                const bookings = getBookings();
+                const bookingIndex = bookings.findIndex(b => b.id === selectedBookingForCancel.id);
+                
+                if (bookingIndex !== -1) {
+                    bookings[bookingIndex].status = 'cancelled';
+                    bookings[bookingIndex].cancelledAt = new Date().toISOString();
+                    saveBookings(bookings);
+                }
+                
+                // Close modal and refresh bookings
+                closeCancelModal();
+                loadMyBookings();
+                
+                alert('Booking cancelled successfully!');
+            }
+        }
+
+        function rateWorker(bookingId) {
+            const bookings = getBookings();
+            selectedBookingForRating = bookings.find(b => b.id === bookingId);
+            
+            if (selectedBookingForRating) {
+                // Populate worker info in rating modal
+                document.getElementById('ratingWorkerInfo').innerHTML = `
+                    <div class="rating-worker-details">
+                        <h4>${selectedBookingForRating.workerName}</h4>
+                        <p><strong>Service:</strong> ${translateText(selectedBookingForRating.workerProfession.toLowerCase())}</p>
+                        <p><strong>Date:</strong> ${selectedBookingForRating.preferredDate}</p>
+                    </div>
+                `;
+                
+                // Reset rating form
+                document.getElementById('selectedRating').value = '';
+                document.getElementById('reviewComment').value = '';
+                
+                // Reset stars
+                const stars = document.querySelectorAll('.star');
+                stars.forEach(star => {
+                    star.style.color = '#e2e8f0';
+                    star.style.transform = 'scale(1)';
+                });
+                
+                document.getElementById('ratingModal').style.display = 'block';
+            }
+        }
+
+        function submitRating(e) {
+            e.preventDefault();
+            
+            const rating = parseInt(document.getElementById('selectedRating').value);
+            const comment = document.getElementById('reviewComment').value;
+            
+            if (!rating) {
+                alert('Please select a rating');
+                return;
+            }
+            
+            // Update booking with rating
+            const bookings = getBookings();
+            const bookingIndex = bookings.findIndex(b => b.id === selectedBookingForRating.id);
+            
+            if (bookingIndex !== -1) {
+                bookings[bookingIndex].rating = rating;
+                bookings[bookingIndex].review = comment;
+                bookings[bookingIndex].ratedAt = new Date().toISOString();
+                saveBookings(bookings);
+            }
+            
+            // Update worker's average rating
+            updateWorkerRating(selectedBookingForRating.workerId, rating);
+            
+            // Close modal and refresh bookings
+            document.getElementById('ratingModal').style.display = 'none';
+            loadMyBookings();
+            
+            alert(`${translateText('thank you')} for your rating!`);
+        }
+
+        function updateWorkerRating(workerId, newRating) {
+            const workers = getWorkers();
+            const workerIndex = workers.findIndex(w => w.id === workerId);
+            
+            if (workerIndex !== -1) {
+                const worker = workers[workerIndex];
+                const bookings = getBookings().filter(b => 
+                    b.workerId === workerId && 
+                    b.rating && 
+                    b.status === 'completed'
+                );
+                
+                // Calculate new average rating
+                const totalRatings = bookings.length;
+                const sumRatings = bookings.reduce((sum, booking) => sum + booking.rating, 0);
+                const averageRating = totalRatings > 0 ? (sumRatings / totalRatings).toFixed(1) : 0;
+                
+                workers[workerIndex].rating = parseFloat(averageRating);
+                workers[workerIndex].completedJobs = totalRatings;
+                
+                saveWorkers(workers);
+            }
+        }
+
+        function loadProfile() {
+            const currentUser = getCurrentUser();
+            const profileDisplay = document.getElementById('profileDisplay');
+            
+            profileDisplay.innerHTML = `
+                <div class="profile-details">
+                    <h4>${currentUser.name}</h4>
+                    <p><strong>${translateText('email')}:</strong> ${currentUser.email}</p>
+                    <p><strong>${translateText('phone')}:</strong> ${currentUser.phone || 'Not provided'}</p>
+                    <p><strong>${translateText('address')}:</strong> ${currentUser.address || 'Not provided'}</p>
+                    <p><strong>Member since:</strong> ${new Date(currentUser.createdAt).toLocaleDateString()}</p>
+                </div>
+                <div class="profile-actions">
+                    <button class="btn btn-primary" onclick="editProfile()" data-translate="edit">Edit Profile</button>
+                    <button class="btn btn-danger" onclick="showDeleteConfirmation()" data-translate="delete">Delete Account</button>
+                </div>
+            `;
+        }
+
+        function editProfile() {
+            const currentUser = getCurrentUser();
+            
+            // Pre-fill form with current data
+            document.getElementById('editName').value = currentUser.name;
+            document.getElementById('editEmail').value = currentUser.email;
+            document.getElementById('editPhone').value = currentUser.phone || '';
+            document.getElementById('editAddress').value = currentUser.address || '';
+            
+            // Show edit form, hide display
+            document.getElementById('profileDisplay').style.display = 'none';
+            document.getElementById('profileEdit').style.display = 'block';
+        }
+
+        function cancelEdit() {
+            document.getElementById('profileDisplay').style.display = 'block';
+            document.getElementById('profileEdit').style.display = 'none';
+        }
+
+        function saveProfile(e) {
+            e.preventDefault();
+            
+            const currentUser = getCurrentUser();
+            const updatedUser = {
+                ...currentUser,
+                name: document.getElementById('editName').value,
+                email: document.getElementById('editEmail').value,
+                phone: document.getElementById('editPhone').value,
+                address: document.getElementById('editAddress').value
+            };
+            
+            // Update user in storage
+            const users = getUsers();
+            const userIndex = users.findIndex(u => u.id === currentUser.id);
+            if (userIndex !== -1) {
+                users[userIndex] = updatedUser;
+                saveUsers(users);
+                setCurrentUser(updatedUser);
+            }
+            
+            // Update welcome message
+            document.getElementById('welcomeMessage').textContent = `${translateText('welcome')}, ${updatedUser.name}!`;
+            
+            // Show updated profile
+            cancelEdit();
+            loadProfile();
+            
+            alert('Profile updated successfully!');
+        }
+
+        function showDeleteConfirmation() {
+            document.getElementById('deleteConfirmModal').style.display = 'block';
+            document.getElementById('deleteConfirmText').value = '';
+            document.getElementById('confirmDeleteBtn').disabled = true;
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('deleteConfirmModal').style.display = 'none';
+            document.getElementById('deleteConfirmText').value = '';
+            document.getElementById('confirmDeleteBtn').disabled = true;
+        }
+
+        function handleDeleteConfirmation(e) {
+            const confirmText = e.target.value;
+            const deleteBtn = document.getElementById('confirmDeleteBtn');
+            
+            if (confirmText === 'DELETE') {
+                deleteBtn.disabled = false;
+                deleteBtn.classList.add('btn-danger-active');
+            } else {
+                deleteBtn.disabled = true;
+                deleteBtn.classList.remove('btn-danger-active');
+            }
+        }
+
+        function deleteAccount() {
+            const currentUser = getCurrentUser();
+            
+            // Delete user account
+            deleteUserAccount(currentUser.id);
+            
+            // Show success message and redirect
+            alert('Your account has been successfully deleted. You will now be redirected to the login page.');
+            
+            // Clear session and redirect
+            clearCurrentUser();
+            window.location.href = 'index.html';
+        }
+
+        // Set minimum date to today
+        document.getElementById('preferredDate').min = new Date().toISOString().split('T')[0];
+    </script>
+</body>
+</html>
