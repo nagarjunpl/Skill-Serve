@@ -97,3 +97,106 @@
             </div>
         </main>
     </div>
+    
+    <div id="bookingModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3 data-translate="book service">Book Service</h3>
+            <form id="bookingForm">
+                <div class="form-group">
+                    <label for="issueDescription" data-translate="describe your issue">Describe your issue</label>
+                    <textarea id="issueDescription" rows="4" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="preferredDate" data-translate="preferred date">Preferred Date</label>
+                    <input type="date" id="preferredDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="preferredTime" data-translate="preferred time">Preferred Time</label>
+                    <input type="time" id="preferredTime" required>
+                </div>
+                <div class="form-group">
+                    <label for="contactNumber" data-translate="contact number">Contact Number</label>
+                    <input type="tel" id="contactNumber" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Submit Booking</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- rl -->
+    <div id="ratingModal" class="modal">
+        <div class="modal-content">
+            <span class="close-rating">&times;</span>
+            <h3 data-translate="rate your experience">Rate Your Experience</h3>
+            <div id="ratingWorkerInfo" class="rating-worker-info">
+            
+            </div>
+            <form id="ratingForm">
+                <div class="form-group">
+                    <label>How would you rate this worker?</label>
+                    <div class="star-rating">
+                        <span class="star" data-rating="1">⭐</span>
+                        <span class="star" data-rating="2">⭐</span>
+                        <span class="star" data-rating="3">⭐</span>
+                        <span class="star" data-rating="4">⭐</span>
+                        <span class="star" data-rating="5">⭐</span>
+                    </div>
+                    <input type="hidden" id="selectedRating" required>
+                </div>
+                <div class="form-group">
+                    <label for="reviewComment">Review (Optional)</label>
+                    <textarea id="reviewComment" rows="3" placeholder="Share your experience with this worker..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary" data-translate="submit rating">Submit Rating</button>
+            </form>
+        </div>
+    </div
+
+    <!-- Cancel Booking Confirmation Modal -->
+    <div id="cancelBookingModal" class="modal">
+        <div class="modal-content cancel-booking-modal">
+            <span class="close-cancel">&times;</span>
+            <div class="cancel-warning">
+                <div class="warning-icon">❌</div>
+                <h3>Cancel Booking</h3>
+                <p>Are you sure you want to cancel this booking?</p>
+                <div id="cancelBookingInfo" class="cancel-booking-info">
+                    <!-- Booking info will be populated -->
+                </div>
+                <div class="cancel-actions">
+                    <button id="confirmCancelBtn" class="btn btn-danger">Yes, Cancel Booking</button>
+                    <button class="btn btn-secondary" onclick="closeCancelModal()">Keep Booking</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteConfirmModal" class="modal">
+        <div class="modal-content delete-modal">
+            <span class="close-delete">&times;</span>
+            <div class="delete-warning">
+                <div class="warning-icon">⚠️</div>
+                <h3 data-translate="delete">Delete Account</h3>
+                <p>Are you sure you want to permanently delete your account?</p>
+                <div class="delete-consequences">
+                    <h4>This action will:</h4>
+                    <ul>
+                        <li>Permanently delete your profile</li>
+                        <li>Cancel all pending bookings</li>
+                        <li>Remove your booking history</li>
+                        <li>This action cannot be undone</li>
+                    </ul>
+                </div>
+                <div class="delete-confirmation">
+                    <p>Type <strong>"DELETE"</strong> to confirm:</p>
+                    <input type="text" id="deleteConfirmText" placeholder="Type DELETE here">
+                </div>
+                <div class="delete-actions">
+                    <button id="confirmDeleteBtn" class="btn btn-danger" disabled>Delete My Account</button>
+                    <button class="btn btn-secondary" onclick="closeDeleteModal()" data-translate="cancel">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
