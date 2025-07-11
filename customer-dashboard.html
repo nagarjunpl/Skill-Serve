@@ -364,3 +364,273 @@
             document.getElementById('locationSuggestions').style.display = 'none';
             filterWorkers();
         }
+
+        function setupStarRating() {
+            const stars = document.querySelectorAll('.star');
+            stars.forEach((star, index) => {
+                star.addEventListener('click', () => {
+                    const rating = index + 1;
+                    document.getElementById('selectedRating').value = rating;
+                    
+                    // Update visual feedback
+                    stars.forEach((s, i) => {
+                        if (i < rating) {
+                            s.style.color = '#f59e0b';
+                            s.style.transform = 'scale(1.2)';
+                        } else {
+                            s.style.color = '#e2e8f0';
+                            s.style.transform = 'scale(1)';
+                        }
+                    });
+                });
+                
+                star.addEventListener('mouseover', () => {
+                    const rating = index + 1;
+                    stars.forEach((s, i) => {
+                        if (i < rating) {
+                            s.style.color = '#f59e0b';
+                        } else {
+                            s.style.color = '#e2e8f0';
+                        }
+                    });
+                });
+            });
+            
+            // Reset on mouse leave
+            document.querySelector('.star-rating').addEventListener('mouseleave', () => {
+                const selectedRating = document.getElementById('selectedRating').value;
+                stars.forEach((s, i) => {
+                    if (i < selectedRating) {
+                        s.style.color = '#f59e0b';
+                        s.style.transform = 'scale(1.2)';
+                    } else {
+                        s.style.color = '#e2e8f0';
+                        s.style.transform = 'scale(1)';
+                    }
+                });
+            });
+        }
+
+        function loadWorkers() {
+            const workers = getWorkers();
+            displayWorkers(workers);
+        }
+
+        function filterWorkers() {
+            const selectedType = document.getElementById('workerTypeFilter').value;
+            const searchLocation = document.getElementById('locationSearch').value.toLowerCase();
+            const workers = getWorkers();
+            
+            let filteredWorkers = workers;
+            
+            if (selectedType) {
+                filteredWorkers = filteredWorkers.filter(worker => 
+                    worker.profession.toLowerCase() === selectedType
+                );
+            }
+            
+            if (searchLocation) {
+                filteredWorkers = filteredWorkers.filter(worker => 
+                    worker.location.toLowerCase().includes(searchLocation)
+                );
+            }
+            
+            displayWorkers(filteredWorkers);
+        }
+
+        function clearFilters() {
+            document.getElementById('workerTypeFilter').value = '';
+            document.getElementById('locationSearch').value = '';
+            document.getElementById('locationSuggestions').style.display = 'none';
+            loadWorkers();
+        }
+
+        function displayWorkers(workers) {
+            const workersList = document.getElementById('workersList');
+            
+            if (workers.length === 0) {
+                workersList.innerHTML = '<p class="no-results">No workers found matching your criteria.</p>';
+                return;
+            }
+
+            workersList.innerHTML = workers.map(worker => `
+                <div class="worker-card ${worker.available ? 'available' : 'busy'}">
+                    <div class="worker-header">
+                        <h4>${worker.name}</h4>
+                        <div class="status-indicator ${worker.available ? 'available' : 'busy'}">
+                            ${worker.available ? `🟢 ${translateText('available')}` : `🔴 ${translateText('busy')}`}
+                        </div>
+                    </div>
+                    <div class="worker-info">
+                        <p><strong>${translateText('profession')}:</strong> ${translateText(worker.profession.toLowerCase())}</p>
+                        <p><strong>${translateText('experience')}:</strong> ${worker.experience} years</p>
+                        <p><strong>${translateText('location')}:</strong> ${worker.location}</p>
+                        <p><strong>${translateText('contact')}:</strong> 
+                            <a href="tel:${worker.contact}" class="phone-link" title="Click to call">
+                                📞 ${worker.contact}
+                            </a>
+                        </p>
+                        <p><strong>${translateText('rating')}:</strong> ⭐ ${worker.rating}/5 (${worker.completedJobs} jobs)</p>
+                        <p class="worker-description">${worker.description}</p>
+                    </div>
+                    <div class="worker-actions">
+                        <button class="btn ${worker.available ? 'btn-primary' : 'btn-disabled'}" 
+                                onclick="bookWorker('${worker.id}')" 
+                                ${!worker.available ? 'disabled' : ''}>
+                            ${worker.available ? translateText('book now') : 'Not Available'}
+                        </button>
+                        <a href="tel:${worker.contact}" class="btn btn-call" title="Call ${worker.name}">
+                            📞 ${translateText('call now')}
+                        </a>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function bookWorker(workerId) {
+            const workers = getWorkers();
+            selectedWorker = workers.find(w => w.id === workerId);
+            
+            if (selectedWorker && selectedWorker.available) {
+                document.getElementById('bookingModal').style.display = 'block';
+            }
+        }
+
+        function submitBooking(e) {
+            e.preventDefault();
+            
+            const currentUser = getCurrentUser();
+            const booking = {
+                id: Date.now().toString(),
+                customerId: currentUser.id,
+                customerName: currentUser.name,
+                workerId: selectedWorker.id,
+                workerName: selectedWorker.name,
+                workerProfession: selectedWorker.profession,
+                issueDescription: document.getElementById('issueDescription').value,
+                preferredDate: document.getElementById('preferredDate').value,
+                preferredTime: document.getElementById('preferredTime').value,
+                contactNumber: document.getElementById('contactNumber').value,
+                status: 'pending',
+                createdAt: new Date().toISOString(),
+                canRate: false
+            };
+
+            // Save booking
+            const bookings = getBookings();
+            bookings.push(booking);
+            saveBookings(bookings);
+
+            // Close modal and reset form
+            document.getElementById('bookingModal').style.display = 'none';
+            document.getElementById('bookingForm').reset();
+
+            alert('Booking submitted successfully! The worker will respond soon.');
+        }
+
+        function showHome() {
+            document.getElementById('homeSection').style.display = 'block';
+            document.getElementById('bookingsSection').style.display = 'none';
+            document.getElementById('profileSection').style.display = 'none';
+            
+            // Update navigation
+            document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+            document.querySelector('[href="customer-dashboard.html"]').classList.add('active');
+        }
+
+        function showBookings() {
+            document.getElementById('homeSection').style.display = 'none';
+            document.getElementById('bookingsSection').style.display = 'block';
+            document.getElementById('profileSection').style.display = 'none';
+            
+            // Update navigation
+            document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+            document.querySelector('[onclick="showBookings()"]').classList.add('active');
+            
+            loadMyBookings();
+        }
+
+        function showProfile() {
+            document.getElementById('homeSection').style.display = 'none';
+            document.getElementById('bookingsSection').style.display = 'none';
+            document.getElementById('profileSection').style.display = 'block';
+            
+            // Update navigation
+            document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+            document.querySelector('[onclick="showProfile()"]').classList.add('active');
+            
+            loadProfile();
+        }
+
+        function loadMyBookings() {
+            const currentUser = getCurrentUser();
+            const bookings = getBookings().filter(booking => booking.customerId === currentUser.id);
+            const bookingsList = document.getElementById('bookingsList');
+
+            if (bookings.length === 0) {
+                bookingsList.innerHTML = '<p class="no-results">You have no bookings yet.</p>';
+                return;
+            }
+
+            bookingsList.innerHTML = bookings.map(booking => `
+                <div class="booking-card">
+                    <div class="booking-header">
+                        <h4>${booking.workerName} - ${translateText(booking.workerProfession.toLowerCase())}</h4>
+                        <span class="booking-status ${booking.status}">${translateText(booking.status).toUpperCase()}</span>
+                    </div>
+                    <div class="booking-details">
+                        <p><strong>Issue:</strong> ${booking.issueDescription}</p>
+                        <p><strong>${translateText('preferred date')}:</strong> ${booking.preferredDate}</p>
+                        <p><strong>${translateText('preferred time')}:</strong> ${booking.preferredTime}</p>
+                        <p><strong>${translateText('contact')}:</strong> ${booking.contactNumber}</p>
+                        <p><strong>Booked on:</strong> ${new Date(booking.createdAt).toLocaleDateString()}</p>
+                        ${booking.acceptedAt ? `<p><strong>Accepted on:</strong> ${new Date(booking.acceptedAt).toLocaleDateString()}</p>` : ''}
+                        ${booking.completedAt ? `<p><strong>Completed on:</strong> ${new Date(booking.completedAt).toLocaleDateString()}</p>` : ''}
+                        ${booking.cancelledAt ? `<p><strong>Cancelled on:</strong> ${new Date(booking.cancelledAt).toLocaleDateString()}</p>` : ''}
+                        ${booking.rating ? `<p><strong>Your Rating:</strong> ⭐ ${booking.rating}/5</p>` : ''}
+                        ${booking.review ? `<p><strong>Your Review:</strong> "${booking.review}"</p>` : ''}
+                    </div>
+                    <div class="booking-contact-actions">
+                        ${booking.status === 'accepted' || booking.status === 'completed' ? `
+                            <a href="tel:${getWorkerContact(booking.workerId)}" class="btn btn-call">
+                                📞 ${translateText('call now')}
+                            </a>
+                        ` : ''}
+                        ${booking.status === 'pending' ? `
+                            <button class="btn btn-danger" onclick="showCancelBooking('${booking.id}')">
+                                ❌ ${translateText('cancel')} Booking
+                            </button>
+                        ` : ''}
+                        ${booking.status === 'completed' && !booking.rating ? `
+                            <button class="btn btn-primary" onclick="rateWorker('${booking.id}')">Rate Worker</button>
+                        ` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getWorkerContact(workerId) {
+            const workers = getWorkers();
+            const worker = workers.find(w => w.id === workerId);
+            return worker ? worker.contact : '';
+        }
+
+        function showCancelBooking(bookingId) {
+            const bookings = getBookings();
+            selectedBookingForCancel = bookings.find(b => b.id === bookingId);
+            
+            if (selectedBookingForCancel) {
+                // Populate booking info in cancel modal
+                document.getElementById('cancelBookingInfo').innerHTML = `
+                    <div class="cancel-booking-details">
+                        <h4>${selectedBookingForCancel.workerName}</h4>
+                        <p><strong>Service:</strong> ${translateText(selectedBookingForCancel.workerProfession.toLowerCase())}</p>
+                        <p><strong>Date:</strong> ${selectedBookingForCancel.preferredDate}</p>
+                        <p><strong>Time:</strong> ${selectedBookingForCancel.preferredTime}</p>
+                        <p><strong>Issue:</strong> ${selectedBookingForCancel.issueDescription}</p>
+                    </div>
+                `;
+                
+                document.getElementById('cancelBookingModal').style.display = 'block';
+            }
+        }
