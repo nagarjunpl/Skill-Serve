@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Dashboard - SkillServe</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body data-page-title="customer dashboard">
+    <div class="container">
+        <header class="dashboard-header">
+            <div class="logo">
+                <h1>🔧 SkillServe</h1>
+            </div>
+            <nav class="nav">
+                <a href="customer-dashboard.html" class="nav-link active" data-translate="home">Home</a>
+                <a href="#" onclick="showBookings()" class="nav-link" data-translate="my bookings">My Bookings</a>
+                <a href="#" onclick="showProfile()" class="nav-link" data-translate="profile">Profile</a>
+                <button onclick="refreshWorkerData()" class="btn btn-refresh" title="Refresh worker data from storage.js">🔄 <span data-translate="refresh">Refresh Data</span></button>
+                <a href="#" onclick="logout()" class="nav-link" data-translate="logout">Logout</a>
+            </nav>
+        </header>
+
+        <main class="dashboard-main">
+            <div id="homeSection">
+                <div class="welcome-section">
+                    <h2 id="welcomeMessage">Welcome, Customer!</h2>
+                    <p data-translate="find local skilled workers">Find and book skilled workers in your area</p>
+                </div>
+
+                <div class="search-section">
+                    <div class="search-controls">
+                        <select id="workerTypeFilter">
+                            <option value="">All Professions</option>
+                            <option value="electrician" data-translate="electrician">Electrician</option>
+                            <option value="plumber" data-translate="plumber">Plumber</option>
+                            <option value="painter" data-translate="painter">Painter</option>
+                            <option value="carpenter" data-translate="carpenter">Carpenter</option>
+                            <option value="mechanic" data-translate="mechanic">Mechanic</option>
+                            <option value="cleaner" data-translate="cleaner">Cleaner</option>
+                        </select>
+                        <div class="location-search-container">
+                            <input type="text" id="locationSearch" placeholder="Search location..." autocomplete="off" data-translate="location">
+                            <div id="locationSuggestions" class="location-suggestions"></div>
+                        </div>
+                        <button id="searchBtn" class="btn btn-primary" data-translate="search">Search Workers</button>
+                        <button id="clearFiltersBtn" class="btn btn-secondary" data-translate="clear">Clear Filters</button>
+                    </div>
+                </div>
+
+                <div id="workersSection" class="workers-section">
+                    <h3>Available Workers</h3>
+                    <div id="workersList" class="workers-grid">
+                        <!-- Workers will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+
+            <div id="bookingsSection" class="bookings-section" style="display: none;">
+                <h3 data-translate="my bookings">My Bookings</h3>
+                <div id="bookingsList" class="bookings-list">
+                    <!-- Bookings will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <div id="profileSection" class="profile-section" style="display: none;">
+                <h3 data-translate="profile">My Profile</h3>
+                <div class="profile-card">
+                    <div id="profileDisplay">
+                        <!-- Profile info will be populated by JavaScript -->
+                    </div>
+                    <div id="profileEdit" style="display: none;">
+                        <form id="profileEditForm">
+                            <div class="form-group">
+                                <label for="editName" data-translate="name">Full Name</label>
+                                <input type="text" id="editName" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="editEmail" data-translate="email">Email</label>
+                                <input type="email" id="editEmail" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="editPhone" data-translate="phone">Phone Number</label>
+                                <input type="tel" id="editPhone">
+                            </div>
+                            <div class="form-group">
+                                <label for="editAddress" data-translate="address">Address</label>
+                                <textarea id="editAddress" rows="3"></textarea>
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary" data-translate="save">Save Changes</button>
+                                <button type="button" class="btn btn-secondary" onclick="cancelEdit()" data-translate="cancel">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
