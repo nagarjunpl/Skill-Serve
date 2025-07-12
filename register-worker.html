@@ -150,3 +150,22 @@
             // Show success message
             showSuccessMessage();
         }
+
+        function showSuccessMessage() {
+            const form = document.getElementById('workerRegistrationForm');
+            form.innerHTML = `
+                <div class="success-message">
+                    <div class="success-icon">✅</div>
+                    <h3>Registration Successful!</h3>
+                    <p>Your worker profile has been created successfully. You can now start receiving job requests from customers.</p>
+                    <button class="btn btn-primary" onclick="goToDashboard()">Go to Dashboard</button>
+                </div>
+            `;
+        }
+
+        function goToDashboard() {
+            window.location.href = 'worker-dashboard.html';
+        }
+    </script>
+</body>
+</html>
