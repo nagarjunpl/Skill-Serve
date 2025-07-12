@@ -82,3 +82,71 @@
             </div>
         </main>
     </div>
+
+    <script src="storage.js"></script>
+    <script src="auth.js"></script>
+    <script src="translator.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check if user is logged in and is a worker
+            const currentUser = getCurrentUser();
+            if (!currentUser || currentUser.role !== 'worker') {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // Pre-fill name if available
+            document.getElementById('workerName').value = currentUser.name;
+
+            // Setup form submission
+            document.getElementById('workerRegistrationForm').addEventListener('submit', handleRegistration);
+
+            // Update language toggle button text
+            const currentLang = getCurrentLanguage();
+            const toggleBtn = document.getElementById('registerLanguageToggle');
+            if (toggleBtn) {
+                toggleBtn.innerHTML = currentLang === 'english' ? 'ಕನ್ನಡ' : 'English';
+                toggleBtn.title = currentLang === 'english' ? 'Switch to Kannada' : 'Switch to English';
+            }
+        });
+
+        function handleRegistration(e) {
+            e.preventDefault();
+            
+            const currentUser = getCurrentUser();
+            const formData = new FormData(e.target);
+            
+            // Validate form
+            const profession = document.getElementById('profession').value;
+            const experience = document.getElementById('experience').value;
+            const location = document.getElementById('location').value;
+            const contact = document.getElementById('contact').value;
+            const name = document.getElementById('workerName').value;
+            
+            if (!profession || !experience || !location || !contact || !name) {
+                alert('Please fill in all required fields.');
+                return;
+            }
+
+            // Create worker profile
+            const worker = {
+                id: Date.now().toString(),
+                userId: currentUser.id,
+                name: name,
+                profession: profession,
+                experience: experience,
+                location: location,
+                contact: contact,
+                description: document.getElementById('description').value,
+                available: true,
+                createdAt: new Date().toISOString()
+            };
+
+            // Save worker to storage
+            const workers = getWorkers();
+            workers.push(worker);
+            saveWorkers(workers);
+
+            // Show success message
+            showSuccessMessage();
+        }
