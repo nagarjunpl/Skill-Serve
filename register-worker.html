@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register as Worker - SkillServe</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body data-page-title="register worker">
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <h1>🔧 SkillServe</h1>
+                <p>Register as a Skilled Worker</p>
+            </div>
+        </header>
+
+        <main class="register-container">
+            <div class="register-card">
+                <h2>Complete Your Worker Profile</h2>
+                <p>Fill in your details to start receiving job requests</p>
+                
+                <form id="workerRegistrationForm">
+                    <div class="form-group">
+                        <label for="workerName" data-translate="name">Full Name</label>
+                        <input type="text" id="workerName" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="profession">Profession</label>
+                        <select id="profession" required>
+                            <option value="">Select your profession</option>
+                            <option value="Electrician" data-translate="electrician">Electrician</option>
+                            <option value="Plumber" data-translate="plumber">Plumber</option>
+                            <option value="Painter" data-translate="painter">Painter</option>
+                            <option value="Carpenter" data-translate="carpenter">Carpenter</option>
+                            <option value="Mechanic" data-translate="mechanic">Mechanic</option>
+                            <option value="Cleaner" data-translate="cleaner">Cleaner</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="experience" data-translate="years of experience">Years of Experience</label>
+                        <select id="experience" required>
+                            <option value="">Select experience</option>
+                            <option value="1">Fresher</option>
+                            <option value="1">1 year</option>
+                            <option value="2">2 years</option>
+                            <option value="3">3 years</option>
+                            <option value="4">4 years</option>
+                            <option value="5">5 years</option>
+                            <option value="6">6-10 years</option>
+                            <option value="10">10+ years</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="location" data-translate="location">Location</label>
+                        <input type="text" id="location" placeholder="City, State" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="contact" data-translate="contact">Contact Number</label>
+                        <input type="tel" id="contact" placeholder="(123) 456-7890" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="description">About You (Optional)</label>
+                        <textarea id="description" rows="3" placeholder="Tell customers about your skills and experience..."></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">Register as Worker</button>
+                </form>
+                
+                <div class="register-footer">
+                    <p>Already registered? <a href="index.html" data-translate="login">Login here</a></p>
+                    <!-- Language toggle for register page -->
+                    <div style="margin-top: 1rem;">
+                        <button id="registerLanguageToggle" class="btn language-toggle" onclick="toggleLanguage()">ಕನ್ನಡ</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
