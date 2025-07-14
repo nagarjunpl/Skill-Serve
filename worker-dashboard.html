@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Worker Dashboard - SkillServe</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body data-page-title="worker dashboard">
+    <div class="container">
+        <header class="dashboard-header">
+            <div class="logo">
+                <h1>🔧 SkillServe</h1>
+            </div>
+            <nav class="nav">
+                <a href="#" onclick="showDashboard()" class="nav-link active" data-translate="dashboard">Dashboard</a>
+                <a href="#" onclick="showBookings()" class="nav-link">My Jobs</a>
+                <a href="#" onclick="showProfile()" class="nav-link" data-translate="profile">Profile</a>
+                <button onclick="refreshWorkerData()" class="btn btn-refresh" title="Refresh worker data from storage.js">🔄 <span data-translate="refresh">Refresh Data</span></button>
+                <a href="#" onclick="logout()" class="nav-link" data-translate="logout">Logout</a>
+            </nav>
+        </header>
+
+        <main class="dashboard-main">
+            <div id="dashboardSection">
+                <div class="welcome-section">
+                    <h2 id="welcomeMessage">Welcome, Worker!</h2>
+                    <p>Manage your availability and bookings</p>
+                </div>
+
+                <div class="availability-section">
+                    <div class="availability-card">
+                        <h3>Your Availability</h3>
+                        <div class="availability-status">
+                            <span id="currentStatus" class="status-indicator">🟢 <span data-translate="available">Available</span></span>
+                            <button id="toggleAvailability" class="btn btn-primary" data-translate="mark as busy">Mark as Busy</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bookings-section">
+                    <h3>Recent Booking Requests</h3>
+                    <div id="bookingRequestsList" class="bookings-list">
+                        <!-- Booking requests will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+
+            <div id="bookingsSection" class="bookings-section" style="display: none;">
+                <h3>My Jobs</h3>
+                <div class="job-tabs">
+                    <button class="tab-btn active" onclick="showJobTab('pending')" data-translate="pending">Pending</button>
+                    <button class="tab-btn" onclick="showJobTab('accepted')" data-translate="accepted">Accepted</button>
+                    <button class="tab-btn" onclick="showJobTab('completed')" data-translate="completed">Completed</button>
+                </div>
+                <div id="allJobsList" class="bookings-list">
+                    <!-- All jobs will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <div id="profileSection" class="profile-section" style="display: none;">
+                <h3 data-translate="profile">My Profile</h3>
+                <div class="profile-card">
+                    <div id="profileDisplay">
+                        <!-- Profile info will be populated by JavaScript -->
+                    </div>
+                    <div id="profileEdit" style="display: none;">
+                        <form id="profileEditForm">
+                            <div class="form-group">
+                                <label for="editName" data-translate="name">Full Name</label>
+                                <input type="text" id="editName" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="editProfession">Profession</label>
+                                <select id="editProfession" required>
+                                    <option value="Electrician" data-translate="electrician">Electrician</option>
+                                    <option value="Plumber" data-translate="plumber">Plumber</option>
+                                    <option value="Painter" data-translate="painter">Painter</option>
+                                    <option value="Carpenter" data-translate="carpenter">Carpenter</option>
+                                    <option value="Mechanic" data-translate="mechanic">Mechanic</option>
+                                    <option value="Cleaner" data-translate="cleaner">Cleaner</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="editExperience" data-translate="years of experience">Years of Experience</label>
+                                <select id="editExperience" required>
+                                    <option value="1">Fresher</option>
+                                    <option value="1">1 year</option>
+                                    <option value="2">2 years</option>
+                                    <option value="3">3 years</option>
+                                    <option value="4">4 years</option>
+                                    <option value="5">5 years</option>
+                                    <option value="6">6-10 years</option>
+                                    <option value="10">10+ years</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="editLocation" data-translate="location">Location</label>
+                                <input type="text" id="editLocation" placeholder="City, State" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="editContact" data-translate="contact">Contact Number</label>
+                                <input type="tel" id="editContact" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="editDescription">About You</label>
+                                <textarea id="editDescription" rows="4" placeholder="Tell customers about your skills and experience..."></textarea>
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary" data-translate="save">Save Changes</button>
+                                <button type="button" class="btn btn-secondary" onclick="cancelEdit()" data-translate="cancel">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteConfirmModal" class="modal">
+        <div class="modal-content delete-modal">
+            <span class="close-delete">&times;</span>
+            <div class="delete-warning">
+                <div class="warning-icon">⚠️</div>
+                <h3>Delete Worker Account</h3>
+                <p>Are you sure you want to permanently delete your worker account?</p>
+                <div class="delete-consequences">
+                    <h4>This action will:</h4>
+                    <ul>
+                        <li>Permanently delete your worker profile</li>
+                        <li>Remove you from customer searches</li>
+                        <li>Cancel all pending job requests</li>
+                        <li>Delete your job history and ratings</li>
+                        <li>This action cannot be undone</li>
+                    </ul>
+                </div>
+                <div class="delete-confirmation">
+                    <p>Type <strong>"DELETE"</strong> to confirm:</p>
+                    <input type="text" id="deleteConfirmText" placeholder="Type DELETE here">
+                </div>
+                <div class="delete-actions">
+                    <button id="confirmDeleteBtn" class="btn btn-danger" disabled>Delete My Account</button>
+                    <button class="btn btn-secondary" onclick="closeDeleteModal()" data-translate="cancel">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="storage.js"></script>
+    <script src="auth.js"></script>
+    <script src="translator.js"></script>
+    <script>
+        let currentWorker = null;
+        let currentJobTab = 'pending';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check authentication
+            const currentUser = getCurrentUser();
+            if (!currentUser || currentUser.role !== 'worker') {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // Load worker data
+            const workers = getWorkers();
+            currentWorker = workers.find(w => w.userId === currentUser.id);
+            
+            if (!currentWorker) {
+                // New worker, redirect to registration
+                window.location.href = 'register-worker.html';
+                return;
+            }
+
+            // Update welcome message
+            document.getElementById('welcomeMessage').textContent = `${translateText('welcome')}, ${currentWorker.name}!`;
+
+            // Setup dashboard
+            updateAvailabilityStatus();
+            loadBookingRequests();
+            loadAllJobs();
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            document.getElementById('toggleAvailability').addEventListener('click', toggleAvailability);
+            document.getElementById('profileEditForm').addEventListener('submit', saveProfile);
+            
+            // Delete confirmation modal
+            const deleteModal = document.getElementById('deleteConfirmModal');
+            const closeDeleteBtn = document.querySelector('.close-delete');
+            
+            closeDeleteBtn.addEventListener('click', closeDeleteModal);
+            
+            window.addEventListener('click', (e) => {
+                if (e.target === deleteModal) {
+                    closeDeleteModal();
+                }
+            });
+            
+            // Delete confirmation
+            document.getElementById('deleteConfirmText').addEventListener('input', handleDeleteConfirmation);
+            document.getElementById('confirmDeleteBtn').addEventListener('click', deleteAccount);
+        }
+
+        function refreshWorkerData() {
+            // Show loading message
+            const bookingsList = document.getElementById('bookingRequestsList');
+            bookingsList.innerHTML = `<p class="loading-message">🔄 ${translateText('loading')}...</p>`;
+            
+            // Reset worker data and reload
+            resetWorkerData();
+            
+            // Small delay to show loading message, then reload
+            setTimeout(() => {
+                window.location.reload();
+            }, 500);
+        }
+
+        function updateAvailabilityStatus() {
+            const statusElement = document.getElementById('currentStatus');
+            const toggleButton = document.getElementById('toggleAvailability');
+            
+            if (currentWorker.available) {
+                statusElement.innerHTML = `🟢 ${translateText('available')}`;
+                statusElement.className = 'status-indicator available pulse';
+                toggleButton.textContent = translateText('mark as busy');
+                toggleButton.className = 'btn btn-secondary';
+            } else {
+                statusElement.innerHTML = `🔴 ${translateText('busy')}`;
+                statusElement.className = 'status-indicator busy';
+                toggleButton.textContent = translateText('mark as available');
+                toggleButton.className = 'btn btn-primary';
+            }
+        }
+
+        function toggleAvailability() {
+            currentWorker.available = !currentWorker.available;
+            
+            // Update in storage
+            const workers = getWorkers();
+            const workerIndex = workers.findIndex(w => w.id === currentWorker.id);
+            if (workerIndex !== -1) {
+                workers[workerIndex] = currentWorker;
+                saveWorkers(workers);
+            }
+            
+            updateAvailabilityStatus();
+        }
+
+        function loadBookingRequests() {
+            const bookings = getBookings().filter(booking => 
+                booking.workerId === currentWorker.id && booking.status === 'pending'
+            );
+            
+            const bookingsList = document.getElementById('bookingRequestsList');
+            
+            if (bookings.length === 0) {
+                bookingsList.innerHTML = '<p class="no-results">No pending booking requests.</p>';
+                return;
+            }
+
+            bookingsList.innerHTML = bookings.map(booking => `
+                <div class="booking-card">
+                    <div class="booking-header">
+                        <h4>Request from ${booking.customerName}</h4>
+                        <span class="booking-status pending">${translateText('pending').toUpperCase()}</span>
+                    </div>
+                    <div class="booking-details">
+                        <p><strong>Issue:</strong> ${booking.issueDescription}</p>
+                        <p><strong>${translateText('preferred date')}:</strong> ${booking.preferredDate}</p>
+                        <p><strong>${translateText('preferred time')}:</strong> ${booking.preferredTime}</p>
+                        <p><strong>${translateText('contact')}:</strong> ${booking.contactNumber}</p>
+                        <p><strong>Requested on:</strong> ${new Date(booking.createdAt).toLocaleDateString()}</p>
+                    </div>
+                    <div class="booking-actions">
+                        <button class="btn btn-primary" onclick="acceptBooking('${booking.id}')">Accept</button>
+                        <button class="btn btn-secondary" onclick="rejectBooking('${booking.id}')">Decline</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function acceptBooking(bookingId) {
+            const bookings = getBookings();
+            const bookingIndex = bookings.findIndex(b => b.id === bookingId);
+            
+            if (bookingIndex !== -1) {
+                bookings[bookingIndex].status = 'accepted';
+                bookings[bookingIndex].acceptedAt = new Date().toISOString();
+                saveBookings(bookings);
+                
+                
+                
+                updateAvailabilityStatus();
+                loadBookingRequests();
+                loadAllJobs();
+                
+                alert('Booking accepted! You are now marked as busy. Don\'t forget to mark the job as completed when finished.');
+            }
+        }
+
+        function rejectBooking(bookingId) {
+            const bookings = getBookings();
+            const bookingIndex = bookings.findIndex(b => b.id === bookingId);
+            
+            if (bookingIndex !== -1) {
+                bookings[bookingIndex].status = 'rejected';
+                bookings[bookingIndex].rejectedAt = new Date().toISOString();
+                saveBookings(bookings);
+                
+                loadBookingRequests();
+                loadAllJobs();
+                alert('Booking declined.');
+            }
+        }
+
+        function completeJob(bookingId) {
+            const bookings = getBookings();
+            const bookingIndex = bookings.findIndex(b => b.id === bookingId);
+            
+            if (bookingIndex !== -1) {
+                bookings[bookingIndex].status = 'completed';
+                bookings[bookingIndex].completedAt = new Date().toISOString();
+                bookings[bookingIndex].canRate = true;
+                saveBookings(bookings);
+                
+                // Mark worker as available again
+                currentWorker.available = true;
+                const workers = getWorkers();
+                const workerIndex = workers.findIndex(w => w.id === currentWorker.id);
+                if (workerIndex !== -1) {
+                    workers[workerIndex] = currentWorker;
+                    saveWorkers(workers);
+                }
+                
+                updateAvailabilityStatus();
+                loadBookingRequests();
+                loadAllJobs();
+                
+                alert('Job marked as completed! You are now available for new bookings. Customer can now rate your work.');
+            }
+        }
+
+        function showDashboard() {
+            document.getElementById('dashboardSection').style.display = 'block';
+            document.getElementById('bookingsSection').style.display = 'none';
+            document.getElementById('profileSection').style.display = 'none';
+            
+            // Update navigation
+            document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+            document.querySelector('[onclick="showDashboard()"]').classList.add('active');
+        }
+
+        function showBookings() {
+            document.getElementById('dashboardSection').style.display = 'none';
+            document.getElementById('bookingsSection').style.display = 'block';
+            document.getElementById('profileSection').style.display = 'none';
+            
+            // Update navigation
+            document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+            document.querySelector('[onclick="showBookings()"]').classList.add('active');
+            
+            loadAllJobs();
+        }
+
+        function showProfile() {
+            document.getElementById('dashboardSection').style.display = 'none';
+            document.getElementById('bookingsSection').style.display = 'none';
+            document.getElementById('profileSection').style.display = 'block';
+            
+            // Update navigation
+            document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+            document.querySelector('[onclick="showProfile()"]').classList.add('active');
+            
+            loadProfile();
+        }
+
+        function showJobTab(tabName) {
+            currentJobTab = tabName;
+            
+            // Update tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`[onclick="showJobTab('${tabName}')"]`).classList.add('active');
+            
+            loadAllJobs();
+        }
+
+        function loadAllJobs() {
+            const allBookings = getBookings().filter(booking => booking.workerId === currentWorker.id);
+            let filteredBookings = [];
+            
+            switch(currentJobTab) {
+                case 'pending':
+                    filteredBookings = allBookings.filter(b => b.status === 'pending');
+                    break;
+                case 'accepted':
+                    filteredBookings = allBookings.filter(b => b.status === 'accepted');
+                    break;
+                case 'completed':
+                    filteredBookings = allBookings.filter(b => b.status === 'completed');
+                    break;
+            }
+            
+            const jobsList = document.getElementById('allJobsList');
+            
+            if (filteredBookings.length === 0) {
+                jobsList.innerHTML = `<p class="no-results">No ${translateText(currentJobTab)} jobs.</p>`;
+                return;
+            }
+
+            jobsList.innerHTML = filteredBookings.map(booking => `
+                <div class="booking-card">
+                    <div class="booking-header">
+                        <h4>${booking.customerName} - ${translateText(booking.workerProfession.toLowerCase())}</h4>
+                        <span class="booking-status ${booking.status}">${translateText(booking.status).toUpperCase()}</span>
+                    </div>
+                    <div class="booking-details">
+                        <p><strong>Issue:</strong> ${booking.issueDescription}</p>
+                        <p><strong>Date:</strong> ${booking.preferredDate}</p>
+                        <p><strong>Time:</strong> ${booking.preferredTime}</p>
+                        <p><strong>${translateText('contact')}:</strong> ${booking.contactNumber}</p>
+                        <p><strong>Requested:</strong> ${new Date(booking.createdAt).toLocaleDateString()}</p>
+                        ${booking.acceptedAt ? `<p><strong>Accepted:</strong> ${new Date(booking.acceptedAt).toLocaleDateString()}</p>` : ''}
+                        ${booking.completedAt ? `<p><strong>Completed:</strong> ${new Date(booking.completedAt).toLocaleDateString()}</p>` : ''}
+                        ${booking.rating ? `<p><strong>Customer Rating:</strong> ⭐ ${booking.rating}/5</p>` : ''}
+                        ${booking.review ? `<p><strong>Review:</strong> "${booking.review}"</p>` : ''}
+                    </div>
+                    ${booking.status === 'pending' ? `
+                        <div class="booking-actions">
+                            <button class="btn btn-primary" onclick="acceptBooking('${booking.id}')">Accept</button>
+                            <button class="btn btn-secondary" onclick="rejectBooking('${booking.id}')">Decline</button>
+                        </div>
+                    ` : ''}
+                    ${booking.status === 'accepted' ? `
+                        <div class="booking-actions">
+                            <button class="btn btn-primary" onclick="completeJob('${booking.id}')" data-translate="mark as completed">Mark as Completed</button>
+                        </div>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+
+        function loadProfile() {
+            const profileDisplay = document.getElementById('profileDisplay');
+            profileDisplay.innerHTML = `
+                <div class="profile-details">
+                    <h4>${currentWorker.name}</h4>
+                    <p><strong>Profession:</strong> ${translateText(currentWorker.profession.toLowerCase())}</p>
+                    <p><strong>${translateText('experience')}:</strong> ${currentWorker.experience} years</p>
+                    <p><strong>${translateText('location')}:</strong> ${currentWorker.location}</p>
+                    <p><strong>${translateText('contact')}:</strong> ${currentWorker.contact}</p>
+                    <p><strong>${translateText('rating')}:</strong> ⭐ ${currentWorker.rating || 'New'}/5</p>
+                    <p><strong>Completed Jobs:</strong> ${currentWorker.completedJobs || 0}</p>
+                    <p><strong>Status:</strong> ${currentWorker.available ? translateText('available') : translateText('busy')}</p>
+                    <p><strong>About:</strong> ${currentWorker.description || 'No description provided'}</p>
+                </div>
+                <div class="profile-actions">
+                    <button class="btn btn-primary" onclick="editProfile()" data-translate="edit">Edit Profile</button>
+                    <button class="btn btn-danger" onclick="showDeleteConfirmation()" data-translate="delete">Delete Account</button>
+                </div>
+            `;
+        }
+
+        function editProfile() {
+            // Pre-fill form with current data
+            document.getElementById('editName').value = currentWorker.name;
+            document.getElementById('editProfession').value = currentWorker.profession;
+            document.getElementById('editExperience').value = currentWorker.experience;
+            document.getElementById('editLocation').value = currentWorker.location;
+            document.getElementById('editContact').value = currentWorker.contact;
+            document.getElementById('editDescription').value = currentWorker.description || '';
+            
+            // Show edit form, hide display
+            document.getElementById('profileDisplay').style.display = 'none';
+            document.getElementById('profileEdit').style.display = 'block';
+        }
+
+        function cancelEdit() {
+            document.getElementById('profileDisplay').style.display = 'block';
+            document.getElementById('profileEdit').style.display = 'none';
+        }
+
+        function saveProfile(e) {
+            e.preventDefault();
+            
+            // Update worker data
+            currentWorker.name = document.getElementById('editName').value;
+            currentWorker.profession = document.getElementById('editProfession').value;
+            currentWorker.experience = document.getElementById('editExperience').value;
+            currentWorker.location = document.getElementById('editLocation').value;
+            currentWorker.contact = document.getElementById('editContact').value;
+            currentWorker.description = document.getElementById('editDescription').value;
+            
+            // Update in storage
+            const workers = getWorkers();
+            const workerIndex = workers.findIndex(w => w.id === currentWorker.id);
+            if (workerIndex !== -1) {
+                workers[workerIndex] = currentWorker;
+                saveWorkers(workers);
+            }
+            
+            // Update welcome message
+            document.getElementById('welcomeMessage').textContent = `${translateText('welcome')}, ${currentWorker.name}!`;
+            
+            // Show updated profile
+            cancelEdit();
+            loadProfile();
+            
+            alert('Profile updated successfully!');
+        }
+
+        function showDeleteConfirmation() {
+            document.getElementById('deleteConfirmModal').style.display = 'block';
+            document.getElementById('deleteConfirmText').value = '';
+            document.getElementById('confirmDeleteBtn').disabled = true;
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('deleteConfirmModal').style.display = 'none';
+            document.getElementById('deleteConfirmText').value = '';
+            document.getElementById('confirmDeleteBtn').disabled = true;
+        }
+
+        function handleDeleteConfirmation(e) {
+            const confirmText = e.target.value;
+            const deleteBtn = document.getElementById('confirmDeleteBtn');
+            
+            if (confirmText === 'DELETE') {
+                deleteBtn.disabled = false;
+                deleteBtn.classList.add('btn-danger-active');
+            } else {
+                deleteBtn.disabled = true;
+                deleteBtn.classList.remove('btn-danger-active');
+            }
+        }
+
+        function deleteAccount() {
+            const currentUser = getCurrentUser();
+            
+            // Delete worker account (includes both user and worker profile)
+            deleteWorkerAccount(currentUser.id, currentWorker.id);
+            
+            // Show success message and redirect
+            alert('Your worker account has been successfully deleted. You will now be redirected to the login page.');
+            
+            // Clear session and redirect
+            clearCurrentUser();
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>
